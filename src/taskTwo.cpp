@@ -14,46 +14,16 @@
 
 TaskTwoWidget::TaskTwoWidget(QWidget* parent)
     : QWidget(parent)
-    , xValue(new NumberInput(this))
-    , mValue(new NumberInput(this))
-    , resultText(new QPlainTextEdit(this))
+    , randomLay(new QVBoxLayout())
 {
-    QGridLayout* layout = new QGridLayout(this);
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    layout->addLayout(randomLay);
 
-    QHBoxLayout* radioLay = new QHBoxLayout();
-    QButtonGroup* radioGroup = new QButtonGroup(this);
-    radioGroup->setExclusive(true);
+    QPushButton* generateBt = new QPushButton("Сгенерировать", this);
+    layout->addWidget(generateBt);
+    QObject::connect(generateBt, &QPushButton::clicked, this, &TaskTwoWidget::generator);
 
-    sh = new QRadioButton("sh(x)", this);
-    radioLay->addWidget(sh);
-    radioGroup->addButton(sh);
-    sh->setChecked(true);
-
-    square = new QRadioButton("x^2", this);
-    radioLay->addWidget(square);
-    radioGroup->addButton(square);
-
-    e = new QRadioButton("e^x", this);
-    radioLay->addWidget(e);
-    radioGroup->addButton(e);
-
-    layout->addLayout(radioLay, 0, 0);
-
-    layout->addWidget(new QLabel("Введите значение X:"), 1, 0);
-    layout->addWidget(xValue, 1, 1);
-
-    layout->addWidget(new QLabel("Введите значение Y:"), 2, 0);
-    layout->addWidget(mValue, 2, 1);
-
-    layout->addWidget(new QLabel("Результат выполнения программы:"), 3, 0, 1, 2);
-
-    resultText->setReadOnly(true);
-    layout->addWidget(resultText, 4, 0, 1, 2);
-
-    button = new QPushButton("Выполнить", this);
-    QObject::connect(button, &QPushButton::clicked, this, &TaskTwoWidget::printResult);
-    layout->addWidget(button, 5, 1);
-
+    this->setLayout(layout);
 }
 
 TaskTwoWidget::~TaskTwoWidget()
@@ -61,54 +31,21 @@ TaskTwoWidget::~TaskTwoWidget()
     // ?
 }
 
-void TaskTwoWidget::printResult()
+void TaskTwoWidget::generator()
 {
-    double result;
+    QLayoutItem* child;
+    while ((child = this->randomLay->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
 
-    if (this->mValue->getValue() < this->xValue->getValue()) {
-        result = this->calculateSin();
-    }
-    else if (this->mValue->getValue() > this->xValue->getValue()) {
-        result = this->calculateCos();
-    }
-    else {
-        result = this->calculateSquare();
-    }
-    resultText->setPlainText(QString(
-        "Лаб. работа №1. Ст. гр. АДМ-23-06 Куликов Ю.Н.\n"
-        "X = " + QString::number(xValue->getValue()) + "\n"
-        "M = " + QString::number(mValue->getValue()) + "\n"
-        "Результат U = " + QString::number(result) + "\n"
-    ));
-}
+    for (int i = 0; i < QRandomGenerator::global()->bounded(1, 8); i++) {
+        int randomNumber = QRandomGenerator::global()->bounded(1, 4);
 
-double TaskTwoWidget::getFunction()
-{
-    if (this->sh->isChecked()) {
-        return sinh(this->xValue->getValue());
-    } 
-    else if (this->square->isChecked()) {
-        return pow(this->xValue->getValue(), 2);
-    }
-    else if (this->e->isChecked()) {
-        return exp(this->xValue->getValue());
-    }
-    else {
-        return 0;
-    }
-}
+        std::unique_ptr<QWidget> widget = widgetFactory[randomNumber]();
 
-double TaskTwoWidget::calculateSin() 
-{
-    return (sin(5 * this->getFunction() + 3 * this->mValue->getValue() * std::fabs(this->getFunction())));
-}
-
-double TaskTwoWidget::calculateCos()
-{
-    return (cos(3 * this->getFunction() + 5 * this->mValue->getValue() * std::fabs(this->getFunction())));
-}
-
-double TaskTwoWidget::calculateSquare()
-{
-    return pow((this->getFunction() + this->mValue->getValue()), 2);
+        if (widget) {
+            this->randomLay->addWidget(widget.release());
+        }
+    }
 }

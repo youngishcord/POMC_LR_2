@@ -15,13 +15,13 @@ public:
     ~TaskOneWidget();
 
 private:
-    NumberInput* xValue;
-    NumberInput* yValue;
-    NumberInput* zValue;
+    NumberInput* xStart;
+    NumberInput* xStop;
+    NumberInput* Step;
 
     QPushButton* button;
     QPlainTextEdit* resultText;
-    double calculate();
+    double calculate(double x);
 
 private slots:
     void printResult();

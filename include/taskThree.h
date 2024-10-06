@@ -19,22 +19,33 @@ public:
     ~TaskThreeWidget();
 
 private:
-    NumberInput* xMin;
-    NumberInput* xMax;
-    NumberInput* xStep;
+    NumberInput* a;
+    NumberInput* b;
+    NumberInput* c;
 
-    QPushButton* drawBt;
-    QSplineSeries* spline;
+    NumberInput* d;
+    NumberInput* e;
+    NumberInput* f;
 
-    QChart* chart;
+    QPlainTextEdit* resultText;
 
-    QValueAxis* axisX;
-    QValueAxis* axisY;
+    double func(double x, double y, double z) {
+        return pow(x, 2) * pow(y, 3) * sqrt(z);
+    }
 
-    double calculate(double x);
+    char getSign(double a, double b) {
+        if (a == b) {
+            return '=';
+        } else if (a > b) {
+            return '>';
+        } else if (a < b) {
+            return '<';
+        }
+        return '?';
+    }
 
 private slots:
-    void drawPlot();
+    void result();
 };
 
 #endif // TASKTHREE_H

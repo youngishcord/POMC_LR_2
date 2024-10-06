@@ -20,5 +20,5 @@ NumberInput::~NumberInput()
 
 double NumberInput::getValue()
 {
-    return this->text().toFloat();
+    return this->text() != "" ? this->text().toFloat() : 0; 
 }

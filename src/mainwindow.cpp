@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , taskTabs(new QTabWidget(this))
 {
-    this->setWindowTitle("ЛР 1");
+    this->setWindowTitle("ЛР 2");
     this->setFixedSize(400, 500);
 
     setCentralWidget(taskTabs);

@@ -20,52 +20,39 @@
 
 TaskThreeWidget::TaskThreeWidget(QWidget* parent)
     : QWidget(parent)
-    , xMin(new NumberInput(this))
-    , xMax(new NumberInput(this))
-    , xStep(new NumberInput(this))
-    , drawBt(new QPushButton(this))
-    , spline(new QSplineSeries())
-    , chart(new QChart())
+    , a(new NumberInput(this))
+    , b(new NumberInput(this))
+    , c(new NumberInput(this))
+    , d(new NumberInput(this))
+    , e(new NumberInput(this))
+    , f(new NumberInput(this))
+    , resultText(new QPlainTextEdit(this))
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
     this->setLayout(layout);
 
-    QChartView* chartView = new QChartView(this);
-    chartView->setChart(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
-    layout->addWidget(chartView);
+    QGridLayout* grid = new QGridLayout();
+    grid->addWidget(new QLabel("Значение а:"), 0, 0);
+    grid->addWidget(a, 0, 1);
+    grid->addWidget(new QLabel("Значение b:"), 1, 0);
+    grid->addWidget(b, 1, 1);
+    grid->addWidget(new QLabel("Значение c:"), 2, 0);
+    grid->addWidget(c, 2, 1);
+    grid->addWidget(new QLabel("Значение d:"), 3, 0);
+    grid->addWidget(d, 3, 1);
+    grid->addWidget(new QLabel("Значение e:"), 4, 0);
+    grid->addWidget(e, 4, 1);
+    grid->addWidget(new QLabel("Значение f:"), 5, 0);
+    grid->addWidget(f, 5, 1);
 
-    chart->addSeries(spline);
-    spline->setName("Function");
+    layout->addLayout(grid);
 
-    axisX = new QValueAxis();
-    axisX->setRange(-2, -0.75);
-    this->chart->addAxis(axisX, Qt::AlignBottom);
-    spline->attachAxis(axisX);
+    layout->addWidget(resultText);
+    resultText->setReadOnly(true);
 
-    axisY = new QValueAxis();
-    axisY->setRange(2, 130);
-    this->chart->addAxis(axisY, Qt::AlignLeft);
-    spline->attachAxis(axisY);
-
-    QHBoxLayout* semilay = new QHBoxLayout();
-    semilay->addWidget(new QLabel("min x:"));
-    semilay->addWidget(xMin);
-    xMin->setText("-0.75");
-
-    semilay->addWidget(new QLabel("max x:"));
-    semilay->addWidget(xMax);
-    xMax->setText("-2.05");
-
-    semilay->addWidget(new QLabel("step:"));
-    semilay->addWidget(xStep);
-    xStep->setText("-0.2");
-
-    semilay->addWidget(drawBt);
-    drawBt->setText("Построить");
-    connect(drawBt, &QPushButton::clicked, this, &TaskThreeWidget::drawPlot);
-
-    layout->addLayout(semilay);
+    QPushButton* calculateBt = new QPushButton("Вычислить");
+    layout->addWidget(calculateBt);
+    connect(calculateBt, &QPushButton::clicked, this, &TaskThreeWidget::result);
 
 }
 
@@ -74,22 +61,14 @@ TaskThreeWidget::~TaskThreeWidget()
     // ?
 }
 
-void TaskThreeWidget::drawPlot()
+void TaskThreeWidget::result()
 {
-    this->spline->clear();
-    double max = -100000;
-    double min = 100000;
-
-    for (double x = xMin->getValue(); x >= xMax->getValue(); x += xStep->getValue()) {
-        double res = this->calculate(x);
-        if (res > max) { max = res; }
-        if (res < min) { min = res; }
-        this->spline->append(x, calculate(x));
-    }
-    axisX->setRange(xMax->getValue(), xMin->getValue());
-    axisY->setRange(min, max);
+    double res1 = this->func(a->getValue(), b->getValue(), c->getValue());
+    double res2 = this->func(d->getValue(), e->getValue(), f->getValue());
+    QString res("Результат работы программы:\n");
+    res += "f(a,b,c) = " + QString::number(res1) + "\n";
+    res += "f(d,e,f) = " + QString::number(res2) + "\n";
+    res += "f(a,b,c)" + QString(getSign(res1, res2)) + "f(d,e,f)\n";
+    this->resultText->setPlainText(res);
 }
 
-double TaskThreeWidget::calculate(double x) {
-    return 9 * pow(x, 4) + sin(57.2 + x);
-}
